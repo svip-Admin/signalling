@@ -1,5 +1,6 @@
 from pyee import EventEmitter
+from pyee.asyncio import AsyncIOEventEmitter
 
 
-class MessageEvent(EventEmitter):
+class MessageEvent(AsyncIOEventEmitter):
     pass

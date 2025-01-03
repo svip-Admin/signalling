@@ -10,35 +10,35 @@ class PlayerConnection(PeerConnection):
     message_event = MessageEvent()
 
     @message_event.on(MsgType.OFFER.value)
-    def offer(self, message: Offer,**kwargs):
+    async def offer(self, message: Offer,**kwargs):
         pass
 
     @message_event.on(MsgType.ANSWER.value)
-    def answer(self, message: Answer,**kwargs):
+    async def answer(self, message: Answer,**kwargs):
         pass
 
     @message_event.on(MsgType.CONFIG.value)
-    def config(self, message: Config,**kwargs):
+    async def config(self, message: Config,**kwargs):
         pass
 
     @message_event.on(MsgType.ICE_CANDIDATE.value)
-    def ice_candidate(self, message: IceCandidate,**kwargs):
+    async def ice_candidate(self, message: IceCandidate,**kwargs):
         pass
 
     @message_event.on(MsgType.PLAYER_COUNT.value)
-    def player_count(self, message: PlayerCount,**kwargs):
+    async def player_count(self, message: PlayerCount,**kwargs):
         pass
 
     @message_event.on(MsgType.SUBSCRIBE.value)
-    def subscribe(self, message: Subscribe,**kwargs):
+    async def subscribe(self, message: Subscribe,**kwargs):
         pass
 
     @message_event.on(MsgType.UNSUBSCRIBE.value)
-    def unsubscribe(self, message: UnSubscribe,**kwargs):
+    async def unsubscribe(self, message: UnSubscribe,**kwargs):
         pass
 
     @message_event.on(MsgType.LIST_STREAMERS.value)
-    def list_streamers(self,message:ListStreamers,**kwargs):
+    async def list_streamers(self,message:ListStreamers,**kwargs):
         pass
 
 
