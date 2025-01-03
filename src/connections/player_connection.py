@@ -2,7 +2,8 @@ from typing import Any
 from connections import PeerConnection
 from constants.msg_type import MsgType
 from event.message_event import MessageEvent
-from proto.message import Offer, Answer, Config, IceCandidate, PlayerCount, Subscribe, UnSubscribe, ListStreamers
+from proto.message import Offer, Answer, Config, IceCandidate, PlayerCount, Subscribe, UnSubscribe, ListStreamers, \
+    StreamerList
 
 
 class PlayerConnection(PeerConnection):
@@ -40,5 +41,10 @@ class PlayerConnection(PeerConnection):
     @message_event.on(MsgType.LIST_STREAMERS.value)
     async def list_streamers(self,message:ListStreamers,**kwargs):
         pass
+
+    @message_event.on(MsgType.STREAMER_LIST)
+    async def streamer_list(self,message:StreamerList,**kwargs):
+        pass
+
 
 
