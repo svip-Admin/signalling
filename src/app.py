@@ -16,6 +16,9 @@ def main():
                         help='Host to listen on for the signaling and web server, default: "0.0.0.0"')
     parser.add_argument('--port', '-p', type=int, default=os.environ.get('LISTEN_PORT', '8080'),
                         help='Port to listen on for the signaling and web server, default: "8080"')
+    parser.add_argument('--enable_basic_auth', default=os.environ.get('ENABLE_BASIC_AUTH', False),
+                        help='Enable Base authentication on server. Must set basic_auth_user and basic_auth_password to enforce Basic auth.')
+
 
 
 if __name__ == '__main__':

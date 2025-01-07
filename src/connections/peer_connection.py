@@ -11,6 +11,7 @@ class PeerConnection:
     id: str
     conn: Any = None
 
+    # todo 通知消息的处理 是转发还是直接回传
     async def send(self, message: BaseMessage=None,ws=None,**kwargs) -> bool:
         try:
             if message is None:

@@ -10,15 +10,13 @@ logger = logging.getLogger(__name__)
 
 
 class BaseMessage():
-    type: MsgType
-    send_to: str
-
+    type: str
 
     def __init__(self, type: str, **kwargs):
-        self.type = MsgType.parseFromMsgType(type)
+        self.type = type
 
-    def send(self):
-        pass
+    def toJson(self):
+        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
 
 
 class Config(BaseMessage):
@@ -287,68 +285,57 @@ class Stats(BaseMessage):
         self.data = data
 
 
+_generate_message_dict = {
+    MsgType.CONFIG.value: Config,
+    MsgType.IDENTIFY.value: Identity,
+    MsgType.ENDPOINT_ID.value: EndPointId,
+    MsgType.ENDPOINT_ID_CONFIRM.value: EndpointIdConfirm,
+    MsgType.STREAMER_ID_CHANGED.value: StreamerIdChanged,
+    MsgType.STREAMER_LIST.value: StreamerList,
+    MsgType.SUBSCRIBE.value: Subscribe,
+    MsgType.UNSUBSCRIBE.value: UnSubscribe,
+    MsgType.PLAYER_CONNECTED.value: PlayerConnected,
+    MsgType.PLAYER_DISCONNECTED.value: PlayerDisconnected,
+    MsgType.OFFER.value: Offer,
+    MsgType.ANSWER.value: Answer,
+    MsgType.ICE_CANDIDATE.value: IceCandidate,
+    MsgType.DISCONNECT_PLAYER.value: DisconnectPlayer,
+    MsgType.PING.value: Ping,
+    MsgType.PONG.value: Pong,
+    MsgType.STREAMER_DISCONNECTED.value: StreamerDisconnect,
+    MsgType.LAYER_PREFERENCE.value: LayerPreference,
+    MsgType.DATA_CHANNEL_REQUEST.value: DataChannelRequest,
+    MsgType.PEER_DATA_CHANNELS.value: PeerDataChannels,
+    MsgType.PEER_DATA_CHANNELS_READY.value: PeerDataChannelsReady,
+    MsgType.STREAMER_DATA_CHANNELS.value: StreamerDataChannels,
+    MsgType.START_STREAMING.value: StartStreaming,
+    MsgType.STOP_STREAMING.value: StopStreaming,
+    MsgType.PLAYER_COUNT.value: PlayerCount,
+    MsgType.STATS.value: Stats
+}
+
+
 def generate_from_message(msg):
     try:
-        if isinstance(msg,str):
-            msg =json.loads(msg)
+        if isinstance(msg, str):
+            msg = json.loads(msg)
     except Exception as e:
         logger.error(e)
     message = None
     message_type = msg['type']
-    if message_type == MsgType.CONFIG.value:
-        message = Config(**msg)
-    elif message_type == MsgType.IDENTIFY.value:
-        message = Identity()
-    elif message_type == MsgType.ENDPOINT_ID.value:
-        message = EndPointId(**msg)
-    elif message_type == MsgType.ENDPOINT_ID_CONFIRM.value:
-        message = EndpointIdConfirm(**msg)
-    elif message_type == MsgType.STREAMER_ID_CHANGED.value:
-        message = StreamerIdChanged(**msg)
-    elif message_type == MsgType.STREAMER_LIST.value:
-        message = StreamerList(**msg)
-    elif message_type == MsgType.SUBSCRIBE.value:
-        message = Subscribe(**msg)
-    elif message_type == MsgType.UNSUBSCRIBE.value:
-        message = UnSubscribe(**msg)
-    elif message_type == MsgType.PLAYER_CONNECTED.value:
-        message = PlayerConnected(**msg)
-    elif message_type == MsgType.PLAYER_DISCONNECTED.value:
-        message = PlayerDisconnected(**msg)
-    elif message_type == MsgType.OFFER.value:
-        message = Offer(**msg)
-    elif message_type == MsgType.ANSWER.value:
-        message = Answer(**msg)
-    elif message_type == MsgType.ICE_CANDIDATE.value:
-        message = IceCandidate(**msg)
-    elif message_type == MsgType.DISCONNECT_PLAYER.value:
-        message = DisconnectPlayer(**msg)
-    elif message_type == MsgType.PING.value:
-        message = Ping(**msg)
-    elif message_type == MsgType.PONG.value:
-        message = Pong(**msg)
-    elif message_type == MsgType.STREAMER_DISCONNECTED.value:
-        message = StreamerDisconnect(**msg)
-    elif message_type == MsgType.LAYER_PREFERENCE.value:
-        message = LayerPreference(**msg)
-    elif message_type == MsgType.DATA_CHANNEL_REQUEST.value:
-        message = DataChannelRequest(**msg)
-    elif message_type == MsgType.PEER_DATA_CHANNELS.value:
-        message = PeerDataChannels(**msg)
-    elif message_type == MsgType.PEER_DATA_CHANNELS_READY.value:
-        message = PeerDataChannelsReady(**msg)
-    elif message_type == MsgType.STREAMER_DATA_CHANNELS.value:
-        message = StreamerDataChannels(**msg)
-    elif message_type == MsgType.START_STREAMING.value:
-        message = StartStreaming(**msg)
-    elif message_type == MsgType.STOP_STREAMING.value:
-        message = StopStreaming(**msg)
-    elif message_type == MsgType.PLAYER_COUNT.value:
-        message = PlayerCount(**msg)
-    elif message_type == MsgType.STATS.value:
-        message = Stats(**msg)
+    method = _generate_message_dict[message_type]
+    if message_type is not None:
+        message = method(**msg)
     return message
 
 
 def generate_to_json(msg: Dict):
     return json.dumps(msg)
+
+
+# ping = {"type":"ping","time":1721948820084}
+#
+# message = generate_from_message(ping)
+# print(message.type)
+# print(message.toJson())
+

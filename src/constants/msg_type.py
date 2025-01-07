@@ -36,6 +36,7 @@ class MsgType(Enum):
     START_STREAMING = 'startStreaming'  # SFU发送给信令
     STOP_STREAMING = 'stopStreaming'  # SFU发送给信令
     STREAMER_ID_CHANGED = 'streamerIdChanged'
+
     UNKNOWN = 'unknown'
 
     @classmethod
@@ -46,5 +47,5 @@ class MsgType(Enum):
         return MsgType.UNKNOWN
 
 
-msg_type = MsgType.parseFromMsgType("offer")
-print(msg_type)
+# msg_type = MsgType.parseFromMsgType("offer")
+# print(msg_type)
