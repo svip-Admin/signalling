@@ -1,7 +1,7 @@
 from connections import PeerConnection
-from constants.msg_type import MsgType
+from constants import msgtype
 from event.message_event import MessageEvent
-from proto.message import Offer, Answer, Config, PlayerDisconnected, IceCandidate, PlayerConnected, EndPointId, \
+from proto import Offer, Answer, Config, PlayerDisconnected, IceCandidate, PlayerConnected, EndPointId, \
     EndpointIdConfirm, Identity
 
 
@@ -9,38 +9,38 @@ class StreamerConnection(PeerConnection):
 
     message_event = MessageEvent()
 
-    @message_event.on(MsgType.OFFER.value)
+    @message_event.on(msgtype.OFFER.value)
     async def offer(self,message: Offer,**kwargs):
         pass
 
-    @message_event.on(MsgType.ANSWER.value)
+    @message_event.on(msgtype.ANSWER.value)
     async def answer(self, message: Answer,**kwargs):
         pass
 
-    @message_event.on(MsgType.CONFIG.value)
+    @message_event.on(msgtype.CONFIG.value)
     async def config(self, message: Config,**kwargs):
         pass
 
-    @message_event.on(MsgType.ICE_CANDIDATE.value)
+    @message_event.on(msgtype.ICE_CANDIDATE.value)
     async def ice_candidate(self, message: IceCandidate,**kwargs):
         pass
 
-    @message_event.on(MsgType.PLAYER_DISCONNECTED.value)
+    @message_event.on(msgtype.PLAYER_DISCONNECTED.value)
     async def player_disconnected(self, message: PlayerDisconnected,**kwargs):
         pass
 
-    @message_event.on(MsgType.PLAYER_CONNECTED.value)
+    @message_event.on(msgtype.PLAYER_CONNECTED.value)
     async def player_connected(self, message: PlayerConnected,**kwargs):
         pass
 
-    @message_event.on(MsgType.ENDPOINT_ID.value)
+    @message_event.on(msgtype.ENDPOINT_ID.value)
     async def endpointId(self,message:EndPointId,**kwargs):
         pass
 
-    @message_event.on(MsgType.ENDPOINT_ID_CONFIRM.value)
+    @message_event.on(msgtype.ENDPOINT_ID_CONFIRM.value)
     async def endpointIdConfirm(self,message:EndpointIdConfirm,**kwargs):
         pass
 
-    @message_event.on(MsgType.IDENTIFY.value)
+    @message_event.on(msgtype.IDENTIFY.value)
     async def identify(self, message: Identity,**kwargs):
         pass

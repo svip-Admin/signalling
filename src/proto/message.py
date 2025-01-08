@@ -4,7 +4,7 @@ from typing import Dict, List
 import json
 
 from constants.client_type import StreamerType
-from constants.msg_type import MsgType
+from constants import msgtype
 
 logger = logging.getLogger(__name__)
 
@@ -22,7 +22,7 @@ class BaseMessage():
 class Config(BaseMessage):
 
     def __init__(self, peerConnectionOptions: Dict = {}, protocolVersion: str = None, **kwargs):
-        super().__init__(MsgType.CONFIG.value)
+        super().__init__(msgtype.CONFIG.value)
         self.peerConnectionOptions = peerConnectionOptions
         self.protocolVersion = protocolVersion
 
@@ -38,13 +38,13 @@ class Config(BaseMessage):
 
 class Identity(BaseMessage):
     def __init__(self, **kwargs):
-        super().__init__(MsgType.IDENTIFY.value)
+        super().__init__(msgtype.IDENTIFY.value)
 
 
 class EndPointId(BaseMessage):
 
     def __init__(self, id: str = StreamerType.LEGACY_PEER_ID.value, protocolVersion: str = None, **kwargs):
-        super().__init__(MsgType.ENDPOINT_ID.value)
+        super().__init__(msgtype.ENDPOINT_ID.value)
         self.id = id
         self.protocolVersion = protocolVersion
 
@@ -61,43 +61,43 @@ class EndPointId(BaseMessage):
 class EndpointIdConfirm(BaseMessage):
 
     def __init__(self, committedId: str, **kwargs):
-        super().__init__(MsgType.ENDPOINT_ID_CONFIRM.value)
+        super().__init__(msgtype.ENDPOINT_ID_CONFIRM.value)
         self.committedId = committedId
 
 
 class StreamerIdChanged(BaseMessage):
     def __init__(self, newID: str, **kwargs):
-        super().__init__(MsgType.STREAMER_ID_CHANGED.value)
+        super().__init__(msgtype.STREAMER_ID_CHANGED.value)
         self.newID = newID
 
 
 class ListStreamers(BaseMessage):
     def __init__(self, **kwargs):
-        super().__init__(MsgType.LIST_STREAMERS.value)
+        super().__init__(msgtype.LIST_STREAMERS.value)
 
 
 class StreamerList(BaseMessage):
 
     def __init__(self, ids: List[str], **kwargs):
-        super().__init__(MsgType.LIST_STREAMERS.value)
+        super().__init__(msgtype.LIST_STREAMERS.value)
         self.ids = ids
 
 
 class Subscribe(BaseMessage):
 
     def __init__(self, streamerId: str, **kwargs):
-        super().__init__(MsgType.SUBSCRIBE.value)
+        super().__init__(msgtype.SUBSCRIBE.value)
         self.streamerId = streamerId
 
 
 class UnSubscribe(BaseMessage):
     def __init__(self, **kwargs):
-        super().__init__(MsgType.UNSUBSCRIBE.value)
+        super().__init__(msgtype.UNSUBSCRIBE.value)
 
 
 class PlayerConnected(BaseMessage):
     def __init__(self, dataChannel: bool, sfu: bool, playerId: str, **kwargs):
-        super().__init__(MsgType.PLAYER_CONNECTED.value)
+        super().__init__(msgtype.PLAYER_CONNECTED.value)
         self.dataChannel = dataChannel
         self.sfu = sfu
         self.playerId = playerId
@@ -106,14 +106,14 @@ class PlayerConnected(BaseMessage):
 class PlayerDisconnected(BaseMessage):
 
     def __init__(self, playerId: str, **kwargs):
-        super().__init__(MsgType.PLAYER_DISCONNECTED.value)
+        super().__init__(msgtype.PLAYER_DISCONNECTED.value)
         self.playerId = playerId
 
 
 class Offer(BaseMessage):
 
     def __init__(self, sdp: str, playerId: str = None, sfu: bool = None, multiplex: bool = None, **kwargs):
-        super().__init__(MsgType.OFFER.value)
+        super().__init__(msgtype.OFFER.value)
         self.sdp = sdp
         self.playerId = playerId
         self.sfu = sfu
@@ -135,7 +135,7 @@ class Offer(BaseMessage):
 
 class Answer(BaseMessage):
     def __init__(self, sdp: str, playerId: str = None, minBitrateBps: int = None, maxBitrateBps: int = None, **kwargs):
-        super().__init__(MsgType.ANSWER.value)
+        super().__init__(msgtype.ANSWER.value)
         self.sdp = sdp
         self.playerId = playerId
         self.minBitrateBps = minBitrateBps
@@ -178,7 +178,7 @@ class IceCandidate(BaseMessage):
     candidate: IceCandidateData = None
 
     def __init__(self, candidate: IceCandidateData = None, playerId: str = None, **kwargs):
-        super().__init__(MsgType.ICE_CANDIDATE.value)
+        super().__init__(msgtype.ICE_CANDIDATE.value)
         if candidate is not None:
             self.candidate = IceCandidateData(**candidate)
         self.playerId = playerId
@@ -196,7 +196,7 @@ class IceCandidate(BaseMessage):
 
 class DisconnectPlayer(BaseMessage):
     def __init__(self, playerId: str, reason: str = None, **kwargs):
-        super().__init__(MsgType.DISCONNECT_PLAYER.value)
+        super().__init__(msgtype.DISCONNECT_PLAYER.value)
         self.playerId = playerId
         self.reason = reason
 
@@ -212,24 +212,24 @@ class DisconnectPlayer(BaseMessage):
 
 class Ping(BaseMessage):
     def __init__(self, time: int, **kwargs):
-        super().__init__(MsgType.PING.value)
+        super().__init__(msgtype.PING.value)
         self.time = time
 
 
 class Pong(BaseMessage):
     def __init__(self, time: int, **kwargs):
-        super().__init__(MsgType.PONG.value)
+        super().__init__(msgtype.PONG.value)
         self.time = time
 
 
 class StreamerDisconnect(BaseMessage):
     def __init__(self, **kwargs):
-        super().__init__(MsgType.STREAMER_DISCONNECTED.value)
+        super().__init__(msgtype.STREAMER_DISCONNECTED.value)
 
 
 class LayerPreference(BaseMessage):
     def __init__(self, spatialLayer: int, temporalLayer: int, playerId: str, **kwargs):
-        super().__init__(MsgType.LAYER_PREFERENCE.value)
+        super().__init__(msgtype.LAYER_PREFERENCE.value)
         self.spatialLayer = spatialLayer
         self.temporalLayer = temporalLayer
         self.playerId = playerId
@@ -237,13 +237,13 @@ class LayerPreference(BaseMessage):
 
 class DataChannelRequest(BaseMessage):
     def __init__(self, **kwargs):
-        super().__init__(MsgType.DATA_CHANNEL_REQUEST.value)
+        super().__init__(msgtype.DATA_CHANNEL_REQUEST.value)
 
 
 class PeerDataChannels(BaseMessage):
 
     def __init__(self, playerId: str, sendStreamId: int, recvStreamId: int, **kwargs):
-        super().__init__(MsgType.PEER_DATA_CHANNELS.value)
+        super().__init__(msgtype.PEER_DATA_CHANNELS.value)
         self.playerId = playerId
         self.sendStreamId = sendStreamId
         self.recvStreamId = recvStreamId
@@ -252,12 +252,12 @@ class PeerDataChannels(BaseMessage):
 class PeerDataChannelsReady(BaseMessage):
 
     def __init__(self, **kwargs):
-        super().__init__(MsgType.PEER_DATA_CHANNELS_READY.value)
+        super().__init__(msgtype.PEER_DATA_CHANNELS_READY.value)
 
 
 class StreamerDataChannels(BaseMessage):
     def __init__(self, sfuId: str, sendStreamId: int, recvStreamId: int, **kwargs):
-        super().__init__(MsgType.STREAMER_DATA_CHANNELS.value)
+        super().__init__(msgtype.STREAMER_DATA_CHANNELS.value)
         self.sfuId = sfuId
         self.sendStreamId = sendStreamId
         self.recvStreamId = recvStreamId
@@ -265,53 +265,53 @@ class StreamerDataChannels(BaseMessage):
 
 class StartStreaming(BaseMessage):
     def __init__(self, **kwargs):
-        super().__init__(MsgType.START_STREAMING.value)
+        super().__init__(msgtype.START_STREAMING.value)
 
 
 class StopStreaming(BaseMessage):
     def __init__(self, **kwargs):
-        super().__init__(MsgType.STOP_STREAMING.value)
+        super().__init__(msgtype.STOP_STREAMING.value)
 
 
 class PlayerCount(BaseMessage):
     def __init__(self, count: int, **kwargs):
-        super().__init__(MsgType.PLAYER_COUNT.value)
+        super().__init__(msgtype.PLAYER_COUNT.value)
         self.count = count
 
 
 class Stats(BaseMessage):
     def __init__(self, data: str, **kwargs):
-        super().__init__(MsgType.STATS.value)
+        super().__init__(msgtype.STATS.value)
         self.data = data
 
 
 _generate_message_dict = {
-    MsgType.CONFIG.value: Config,
-    MsgType.IDENTIFY.value: Identity,
-    MsgType.ENDPOINT_ID.value: EndPointId,
-    MsgType.ENDPOINT_ID_CONFIRM.value: EndpointIdConfirm,
-    MsgType.STREAMER_ID_CHANGED.value: StreamerIdChanged,
-    MsgType.STREAMER_LIST.value: StreamerList,
-    MsgType.SUBSCRIBE.value: Subscribe,
-    MsgType.UNSUBSCRIBE.value: UnSubscribe,
-    MsgType.PLAYER_CONNECTED.value: PlayerConnected,
-    MsgType.PLAYER_DISCONNECTED.value: PlayerDisconnected,
-    MsgType.OFFER.value: Offer,
-    MsgType.ANSWER.value: Answer,
-    MsgType.ICE_CANDIDATE.value: IceCandidate,
-    MsgType.DISCONNECT_PLAYER.value: DisconnectPlayer,
-    MsgType.PING.value: Ping,
-    MsgType.PONG.value: Pong,
-    MsgType.STREAMER_DISCONNECTED.value: StreamerDisconnect,
-    MsgType.LAYER_PREFERENCE.value: LayerPreference,
-    MsgType.DATA_CHANNEL_REQUEST.value: DataChannelRequest,
-    MsgType.PEER_DATA_CHANNELS.value: PeerDataChannels,
-    MsgType.PEER_DATA_CHANNELS_READY.value: PeerDataChannelsReady,
-    MsgType.STREAMER_DATA_CHANNELS.value: StreamerDataChannels,
-    MsgType.START_STREAMING.value: StartStreaming,
-    MsgType.STOP_STREAMING.value: StopStreaming,
-    MsgType.PLAYER_COUNT.value: PlayerCount,
-    MsgType.STATS.value: Stats
+    msgtype.CONFIG.value: Config,
+    msgtype.IDENTIFY.value: Identity,
+    msgtype.ENDPOINT_ID.value: EndPointId,
+    msgtype.ENDPOINT_ID_CONFIRM.value: EndpointIdConfirm,
+    msgtype.STREAMER_ID_CHANGED.value: StreamerIdChanged,
+    msgtype.STREAMER_LIST.value: StreamerList,
+    msgtype.SUBSCRIBE.value: Subscribe,
+    msgtype.UNSUBSCRIBE.value: UnSubscribe,
+    msgtype.PLAYER_CONNECTED.value: PlayerConnected,
+    msgtype.PLAYER_DISCONNECTED.value: PlayerDisconnected,
+    msgtype.OFFER.value: Offer,
+    msgtype.ANSWER.value: Answer,
+    msgtype.ICE_CANDIDATE.value: IceCandidate,
+    msgtype.DISCONNECT_PLAYER.value: DisconnectPlayer,
+    msgtype.PING.value: Ping,
+    msgtype.PONG.value: Pong,
+    msgtype.STREAMER_DISCONNECTED.value: StreamerDisconnect,
+    msgtype.LAYER_PREFERENCE.value: LayerPreference,
+    msgtype.DATA_CHANNEL_REQUEST.value: DataChannelRequest,
+    msgtype.PEER_DATA_CHANNELS.value: PeerDataChannels,
+    msgtype.PEER_DATA_CHANNELS_READY.value: PeerDataChannelsReady,
+    msgtype.STREAMER_DATA_CHANNELS.value: StreamerDataChannels,
+    msgtype.START_STREAMING.value: StartStreaming,
+    msgtype.STOP_STREAMING.value: StopStreaming,
+    msgtype.PLAYER_COUNT.value: PlayerCount,
+    msgtype.STATS.value: Stats
 }
 
 
@@ -332,10 +332,11 @@ def generate_from_message(msg):
 def generate_to_json(msg: Dict):
     return json.dumps(msg)
 
+"""
+ping = {"type":"ping","time":1721948820084}
+message = generate_from_message(ping)
+print(message.type)
+print(message.toJson())
+"""
 
-# ping = {"type":"ping","time":1721948820084}
-#
-# message = generate_from_message(ping)
-# print(message.type)
-# print(message.toJson())
 
