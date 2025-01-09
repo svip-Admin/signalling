@@ -4,11 +4,13 @@ import hmac
 import http
 import json
 import os
+import ssl
 from enum import unique
 from pathlib import Path
 
 import websockets
-from websockets.sync.server import basic_auth
+from websockets.asyncio.server import serve
+from websockets.asyncio.server import basic_auth
 
 from connections import PeerConnection
 from constants import MIME_TYPES
@@ -58,6 +60,8 @@ def generate_rtc_config(turn_host, turn_port, shared_secret, user, protocol='udp
 web服务以及websocket服务端
 总的消息收发中心，将收到的消息分发给订阅的客户端
 """
+
+
 class SignallingServer:
     # 存储browser、streaming、sfu的websocket
     peers: list
@@ -71,6 +75,13 @@ class SignallingServer:
 
         self.enable_ssl = options.enable_ssl
         self.ssl_perm = options.ssl_perm
+
+        # 配置ssl context
+        if self.enable_ssl:
+            self.ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+            self.ssl_context.load_cert_chain(self.ssl_perm)
+        else:
+            self.ssl_context = None
 
         self.enable_webserver = options.enable_webserver
         self.web_root = options.web_root
@@ -89,7 +100,7 @@ class SignallingServer:
         self.basic_auth_user = options.basic_auth_user
         self.basic_auth_password = options.basic_auth_password
 
-        self.cache_ttl=60
+        self.cache_ttl = 60
 
         if self.enable_webserver:
             for f in Path(self.web_root).rglob('*.*'):
@@ -102,11 +113,11 @@ class SignallingServer:
         if self.turn_protocol != 'tcp':
             self.turn_protocol = 'udp'
         self.turn_tls = options.turn_tls
-        self.turn_auth_header_name=options.turn_auth_header_name
+        self.turn_auth_header_name = options.turn_auth_header_name
 
         self.rtc_config = options.rtc_config
         if os.path.exists(options.rtc_config_file):
-            logger.info('{} parsing rtc_config_file: {}'.format(utils.get_format_time(),options.rtc_config_file))
+            logger.info('{} parsing rtc_config_file: {}'.format(utils.get_format_time(), options.rtc_config_file))
             self.rtc_config = open(options.rtc_config_file, 'rb').read()
         if self.turn_shared_secret:
             if not (self.turn_host and self.turn_port):
@@ -122,9 +133,8 @@ class SignallingServer:
     def cache_file(self, full_path):
         data, ttl = self.http_cache.get(full_path, (None, None))
         now = time()
-        if data is None or now-ttl>self.cache_ttl:
+        if data is None or now - ttl > self.cache_ttl:
             pass
-
 
     # 连接上来的客户端执行订阅
     def scribe(self, peer_connection: PeerConnection):
@@ -145,59 +155,66 @@ class SignallingServer:
 
         if self.enable_basic_auth:
             process_basic_auth = basic_auth(
-                credentials=(self.basic_auth_user,self.basic_auth_password)
+                credentials=(self.basic_auth_user, self.basic_auth_password)
             )
-            response = await process_basic_auth(connection,request)
+            response = await process_basic_auth(connection, request)
             if response is not None:
                 return response
         if path == '/ws' or path == '/ws/' or path.endswith('/signalling/') or path.endswith('/signalling'):
             return None
         if path == self.health_path:
-            return connection.respond(http.HTTPStatus.OK,'OK\n')
+            return connection.respond(http.HTTPStatus.OK, 'OK\n')
 
         username = ''
 
         if path == '/turn/':
             if self.turn_shared_secret:
                 if not username:
-                    username= headers.get(self.turn_auth_header_name,"")
-
-
-
-
+                    username = headers.get(self.turn_auth_header_name, "")
 
     async def response_process(self, connection, request, response):
         pass
 
     # 握手
     async def handshake(self, ws):
-        raddr = ws.remote_addrss
+        raddr = ws.remote_address
         hello = await ws.recv()
         hello, unique_id = hello.split(maxsplit=1)
         if hello != 'HELLO':
-            await ws.close(code=1002,reason='invalid protocol')
+            await ws.close(code=1002, reason='invalid protocol')
             raise Exception('Invalid hello from {!r}'.format(raddr))
-        if not unique_id or unique_id in self.peers or unique_id.split()!=[unique_id]:
-            await ws.close(code=1002,reason='invalid peer id')
-            raise Exception('Invalid peer id {!r} from {!r}'.format(unique_id,raddr))
+        if not unique_id or unique_id in self.peers or unique_id.split() != [unique_id]:
+            await ws.close(code=1002, reason='invalid peer id')
+            raise Exception('Invalid peer id {!r} from {!r}'.format(unique_id, raddr))
         await ws.send('HELLO')
         return unique_id
 
-    async def connection_handler(self,ws,unique_id):
-        pass
+    async def connection_handler(self, ws, unique_id):
+        while True:
+            msg = await ws.recv()
+            print(msg)
 
     """
     websocket/webserver的启动
     """
+
     async def run(self):
         async def handler(ws):
             raddr = ws.remote_address
             logger.info('Connected to {!r}'.format(raddr))
             unique_id = await self.handshake(ws)
-            await self.connection_handler(ws,unique_id)
-        http_handler = functools.partial(self.request_process,self.web_root)
-        self.holder = await self.loop.create_future()
-        with websockets.serve(handler,self.host,self.port,process_request=http_handler) as self.server:
+            await self.connection_handler(ws, unique_id)
+
+        http_handler = functools.partial(self.request_process, self.web_root)
+        self.holder = self.loop.create_future()
+
+        async with serve(handler,
+                         self.host,
+                         self.port,
+                         process_request=http_handler,
+                         ssl=self.ssl_context,
+                         max_queue=16
+                         ) as self.server:
             await self.holder
 
     """

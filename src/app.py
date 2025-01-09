@@ -133,6 +133,7 @@ def main():
     # 启动服务
     try:
         asyncio.ensure_future(server.run(),loop=loop)
+        asyncio.get_event_loop().run_forever()
     except:
         pass
     finally:
